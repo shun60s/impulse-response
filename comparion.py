@@ -78,18 +78,26 @@ if __name__ == '__main__':
     path2= args.wav_file2
     yg2,sr2= load_wav(path2)
     
-    seclen=120
+    seclen= int((len(yg) /yg.ndim / sr) - 1)
+    print ( 'seclen', seclen)
     len0= int(sr * seclen)
     offset=args.offset
     print ('offset ', offset)
     
+    # only channel 0 compare
     yo= np.empty( ((len0-sr),2), dtype=float)
-    yo[:,0]= yg[sr-offset: len0-offset , 0]
-    yo[:,1]=yg2[sr: len0,  0]
+    if yg.ndim == 2:
+        yo[:,0]= yg[sr-offset: len0-offset , 0]
+        yo[:,1]= yg2[sr: len0,  0]
+    else:
+        yo[:,0]= yg[sr-offset: len0-offset]
+        yo[:,1]= yg2[sr: len0 ]   
     save_wav('comp.wav', yo, sr)
     
-    
-    yo[:,0]= mean_subun(yg[sr-offset: len0-offset , 0], yg2[sr: len0,  0])
-    yo[:,1]= mean_subun(yg[sr-offset: len0-offset , 1], yg2[sr: len0,  1])
+    if yg.ndim == 2:
+        yo[:,0]= mean_subun(yg[sr-offset: len0-offset , 0], yg2[sr: len0,  0])
+        yo[:,1]= mean_subun(yg[sr-offset: len0-offset , 1], yg2[sr: len0,  1])
+    else:
+        yo= mean_subun(yg[sr-offset: len0-offset], yg2[sr: len0])
     save_wav('sabun_ola.wav', yo, sr)
     

@@ -37,7 +37,7 @@ def load_wav( path0, force_mono=False):
     print ('yg.max', np.amax( np.abs(yg)))
     return yg,sr
     
-def load_wav32( path0, wave_len):
+def load_wav32( path0, wave_len, yg_in):
     #
     #        wave_len: impluse effective length time [sec]
     # return 
@@ -52,8 +52,10 @@ def load_wav32( path0, wave_len):
         len0= int(wave_len * sr)
         yg= y[sr : sr+len0] # / (2 ** 31)
         
-        yg2=np.hstack((yg,yg)).reshape( 2, len(yg) ).T
-        
+        if yg_in.ndim == 2:
+            yg2=np.hstack((yg,yg)).reshape( 2, len(yg) ).T
+        else:
+            yg2=yg.copy()
     
     print ('file ', path0)
     print ('sampling rate ', sr)
@@ -96,8 +98,8 @@ if __name__ == '__main__':
    
     path2= args.wav_32_file
     # overwrite path2
-    # path2='impulse_1sec_10_1sec_88200-output-rtwdf.wav'
-    yg2,sr2= load_wav32(path2, 0.150)
+    # path2='impulse_1sec_10_1sec_88200-output-rtwdf.wav
+    yg2,sr2= load_wav32(path2, 0.150, yg)
     
     # overlap-add convolve with impulse response waveform
     out1= signal.oaconvolve( yg, yg2, axes=0)  # need scipy > 1.4.1
